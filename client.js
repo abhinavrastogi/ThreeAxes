@@ -137,7 +137,7 @@ if(window.location.pathname=='/view') {
       var boxShape = new CANNON.Box(halfExtents);
       var boxBody = new CANNON.Body({mass: 5});
       boxBody.addShape(boxShape);
-      boxBody.position.set( i*posRnd, j*0.2, i*posRnd );
+      boxBody.position.set(i*2, j*0.2, i*2);
 
       world.add(boxBody);
       buildingBodys.push(boxBody);
