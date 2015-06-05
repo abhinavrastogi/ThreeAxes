@@ -70,21 +70,29 @@ if(window.location.pathname=='/view') {
   }();
 
   var scene = new THREE.Scene();
-  scene.fog = new THREE.Fog( 0x000000, 0, 20 );
+  scene.fog = new THREE.Fog( 0x000000, 0, 1000 );
   var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 1000 );
   // camera.position.z = 500;
-  camera.position.set(0,1,5);
+  camera.position.set(-12,4,0);
 
   var renderer = new THREE.WebGLRenderer();
   renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.shadowMapEnabled = true;
+  renderer.shadowMapSoft = true;
+  renderer.setClearColor( scene.fog.color, 1 );
   document.body.appendChild( renderer.domElement );
 
   // FLOOR
-  var geometry = new THREE.PlaneGeometry( 30, 30, 20, 20 );
+  var geometry = new THREE.PlaneBufferGeometry( 30, 30, 20, 20 );
   geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, -0.1));
   geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ));
-  var material = new THREE.MeshLambertMaterial( { color: 0xdddddd, wireframe: true } );
+  var material = new THREE.MeshLambertMaterial({
+    color: 0x666666,
+    // wireframe: true,
+    map: THREE.ImageUtils.loadTexture('/grass.jpg')
+  });
   var plane = new THREE.Mesh( geometry, material );
+  plane.receiveShadow = true;
   scene.add(plane);
 
   // OBJECTS
@@ -95,12 +103,14 @@ if(window.location.pathname=='/view') {
 
   for(var i=0; i<5; i++) {
     var floors = Math.floor(Math.random() * 10) + 2;
-    var posRnd = Math.random()*3;
+    // var posRnd = Math.random()*3;
     for(var j=0; j<floors; j++) {
       geometry = new THREE.BoxGeometry( 1, 0.2, 1 );
-      geometry.applyMatrix( new THREE.Matrix4().makeTranslation(i*posRnd, j*0.2, i*posRnd));
-      material = new THREE.MeshLambertMaterial({ color: 'gray' });
+      geometry.applyMatrix( new THREE.Matrix4().makeTranslation(i*2, j*0.2, i*2));
+      material = new THREE.MeshLambertMaterial({ color: 'white' });
       var cube = new THREE.Mesh( geometry, material );
+      cube.castShadow = true;
+      cube.receiveShadow = true;
       scene.add( cube );
     }
   }
@@ -109,8 +119,13 @@ if(window.location.pathname=='/view') {
   var light = new THREE.AmbientLight( 0x404040 );
   scene.add( light );
 
-  var directionalLight = new THREE.DirectionalLight(0xffffff);
-  directionalLight.position.set(1, 1, 1).normalize();
+  var directionalLight = new THREE.SpotLight(0xffffff);
+  directionalLight.position.set(15, 100, 15);
+  directionalLight.castShadow = true;
+  directionalLight.shadowDarkness = 0.5;
+  directionalLight.shadowMapWidth = 1024;
+  directionalLight.shadowMapHeight = 1024;
+  // light.shadowCameraVisible = true;
   scene.add(directionalLight);
 
   var render = function () {
