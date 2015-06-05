@@ -14,15 +14,28 @@ app.get('/view', function(req, res) {
 	res.end(fs.readFileSync('view.html'));
 });
 
+app.get('/three', function(req, res) {
+	res.end(fs.readFileSync('three.html'));
+});
+
 io.on('connection', function(socket){
 	console.log('a user connected', socket.id);
 
 	socket.on('deviceorientation', function(data) {
+		// console.log(data);
 		socket.broadcast.emit('deviceorientation', data);
 	});
-	socket.on('devicemotion', function(data) {
-		socket.broadcast.emit('devicemotion', data);
+	socket.on('btnFwd', function(data) {
+		// console.log('fwd');
+		socket.broadcast.emit('btnFwd', data);
 	});
+	socket.on('btnBck', function(data) {
+		// console.log(data);
+		socket.broadcast.emit('btnBck', data);
+	});
+	// socket.on('devicemotion', function(data) {
+	// 	socket.broadcast.emit('devicemotion', data);
+	// });
 });
 
 http.listen(3000, function(err) {
