@@ -77,7 +77,7 @@ if(window.location.pathname=='/view') {
   scene.fog = new THREE.Fog( 0x000000, 0, 1000 );
   var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 1000 );
   // camera.position.z = 500;
-  camera.position.set(-12,4,0);
+  camera.position.set(-50,10,0);
 
   //controls
   controls = new THREE.TrackballControls( camera );
@@ -108,8 +108,8 @@ if(window.location.pathname=='/view') {
   document.body.appendChild( renderer.domElement );
 
   // FLOOR
-  var geometry = new THREE.PlaneBufferGeometry( 30, 30, 20, 20 );
-  // geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, 0));
+  var geometry = new THREE.PlaneBufferGeometry( 30, 30, 1, 1 );
+  geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, -1));
   geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ));
   var material = new THREE.MeshLambertMaterial({
     color: 0x666666,
@@ -124,7 +124,7 @@ if(window.location.pathname=='/view') {
   var groundShape = new CANNON.Plane();
   var groundBody = new CANNON.Body({
     mass: 0,
-    // position: new CANNON.Vec3(0, 0, 0)
+    position: new CANNON.Vec3(0, -1, 0)
   });
   groundBody.addShape(groundShape);
   // groundBody.rotation.set();
@@ -137,11 +137,11 @@ if(window.location.pathname=='/view') {
   // var cube = new THREE.Mesh( geometry, material );
   // scene.add( cube );
 
-  for(var i=0; i<5; i++) {
-    var floors = Math.floor(Math.random() * 10) + 2;
+  for(var i=0; i<3; i++) {
+    // var floors = Math.floor(Math.random() * 10) + 2;
 
-    var boxGeometry = new THREE.BoxGeometry( 1, 0.2 * floors, 1 );
-    boxGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(i, 0, i));
+    var boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+    // boxGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 1, 0));
     var boxMaterial = new THREE.MeshLambertMaterial({ color: 'white' });
     var cube = new THREE.Mesh( boxGeometry, boxMaterial );
     cube.castShadow = true;
@@ -150,10 +150,13 @@ if(window.location.pathname=='/view') {
     scene.add( cube );
     buildingMeshes.push(cube);
 
-    var boxShape = new CANNON.Box(new CANNON.Vec3( 1, 0.2 * floors, 1 ));
-    var boxBody = new CANNON.Body({ mass: 50 });
+    // var bbox = new THREE.Box3().setFromObject(cube).size();
+    // console.log(bbox.max, bbox.min, bbox.size());
+
+    var boxShape = new CANNON.Box(new CANNON.Vec3( 0.5, 0.5, 0.5 ));
+    var boxBody = new CANNON.Body({ mass: 5 });
     boxBody.addShape(boxShape);
-    boxBody.position.set(i, 0, i);
+    boxBody.position.set(0, i, 0);
 
     world.add(boxBody);
     buildingBodys.push(boxBody);
@@ -195,34 +198,39 @@ if(window.location.pathname=='/view') {
 
   animate();
 
-  socket.on('deviceorientation', function(data) {
-    var alpha  = data.gamma ? THREE.Math.degToRad( data.alpha ) : 0; // Z
-		var beta   = data.beta  ? THREE.Math.degToRad( data.beta  ) : 0; // X'
-		var gamma  = data.gamma ? THREE.Math.degToRad( data.gamma ) : 0; // Y''
+  // for(var i=0; i<buildingBodys.length; i++) {
+  //   console.log(buildingMeshes[i].position);
+  //   console.log(buildingBodys[i].position);
+  // }
 
-    var q = createQuaternion(alpha, beta, gamma, THREE.Math.degToRad(90));
-
-    // var rotEuler = new THREE.Euler( 0, THREE.Math.degToRad(90), 0, 'XYZ' );
-    // var rotQuat = new THREE.Quaternion();
-    // rotQuat.setFromEuler(rotEuler);
-    // q.multiply(rotQuat);
-
-    // if(controlType == 'object') {
-      // cube.quaternion.copy(q);
-    // } else {
-      // q.inverse();
-      var qm = new THREE.Quaternion();
-      THREE.Quaternion.slerp(camera.quaternion, q, qm, 0.2);
-      camera.quaternion.copy(qm);
-    // }
-  });
-
-  socket.on('btnFwd', function(data) {
-    camera.translateZ( - 0.2 );
-  });
-  socket.on('btnBck', function(data) {
-    camera.translateZ( 0.2 );
-  })
+  // socket.on('deviceorientation', function(data) {
+  //   var alpha  = data.gamma ? THREE.Math.degToRad( data.alpha ) : 0; // Z
+	// 	var beta   = data.beta  ? THREE.Math.degToRad( data.beta  ) : 0; // X'
+	// 	var gamma  = data.gamma ? THREE.Math.degToRad( data.gamma ) : 0; // Y''
+  //
+  //   var q = createQuaternion(alpha, beta, gamma, THREE.Math.degToRad(90));
+  //
+  //   // var rotEuler = new THREE.Euler( 0, THREE.Math.degToRad(90), 0, 'XYZ' );
+  //   // var rotQuat = new THREE.Quaternion();
+  //   // rotQuat.setFromEuler(rotEuler);
+  //   // q.multiply(rotQuat);
+  //
+  //   // if(controlType == 'object') {
+  //     // cube.quaternion.copy(q);
+  //   // } else {
+  //     // q.inverse();
+  //     var qm = new THREE.Quaternion();
+  //     THREE.Quaternion.slerp(camera.quaternion, q, qm, 0.2);
+  //     camera.quaternion.copy(qm);
+  //   // }
+  // });
+  //
+  // socket.on('btnFwd', function(data) {
+  //   camera.translateZ( - 0.2 );
+  // });
+  // socket.on('btnBck', function(data) {
+  //   camera.translateZ( 0.2 );
+  // })
 
   // var box = document.getElementById('box');
   // socket.on('deviceorientation', function(data) {
