@@ -73,7 +73,7 @@ if(window.location.pathname=='/view') {
   scene.fog = new THREE.Fog( 0x000000, 0, 20 );
   var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 1000 );
   // camera.position.z = 500;
-  camera.position.set(0,0,5);
+  camera.position.set(0,1,5);
 
   var renderer = new THREE.WebGLRenderer();
   renderer.setSize( window.innerWidth, window.innerHeight );
@@ -81,8 +81,8 @@ if(window.location.pathname=='/view') {
 
   // FLOOR
   var geometry = new THREE.PlaneGeometry( 30, 30, 20, 20 );
-  geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, -1));
-  geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 + 0.1 ));
+  geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, -0.1));
+  geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ));
   var material = new THREE.MeshLambertMaterial( { color: 0xdddddd, wireframe: true } );
   var plane = new THREE.Mesh( geometry, material );
   scene.add(plane);
@@ -95,9 +95,10 @@ if(window.location.pathname=='/view') {
 
   for(var i=0; i<5; i++) {
     var floors = Math.floor(Math.random() * 10) + 2;
+    var posRnd = Math.random()*3;
     for(var j=0; j<floors; j++) {
       geometry = new THREE.BoxGeometry( 1, 0.2, 1 );
-      geometry.applyMatrix( new THREE.Matrix4().makeTranslation(i, j*0.2, i));
+      geometry.applyMatrix( new THREE.Matrix4().makeTranslation(i*posRnd, j*0.2, i*posRnd));
       material = new THREE.MeshLambertMaterial({ color: 'gray' });
       var cube = new THREE.Mesh( geometry, material );
       scene.add( cube );
@@ -125,6 +126,11 @@ if(window.location.pathname=='/view') {
 		var gamma  = data.gamma ? THREE.Math.degToRad( data.gamma ) : 0; // Y''
 
     var q = createQuaternion(alpha, beta, gamma, THREE.Math.degToRad(90));
+
+    // var rotEuler = new THREE.Euler( 0, THREE.Math.degToRad(90), 0, 'XYZ' );
+    // var rotQuat = new THREE.Quaternion();
+    // rotQuat.setFromEuler(rotEuler);
+    // q.multiply(rotQuat);
 
     // if(controlType == 'object') {
       // cube.quaternion.copy(q);
