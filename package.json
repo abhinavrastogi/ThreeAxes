@@ -1,7 +1,7 @@
 {
-  "name": "OsmosMP",
+  "name": "Hackday",
   "version": "1.0.0",
-  "description": "Osmos clone using Flux, Sockets and Canvas",
+  "description": "hack",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
