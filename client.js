@@ -69,6 +69,9 @@ if(window.location.pathname=='/view') {
     }
   }();
 
+  // collections
+  var buildingBodys = [], buildingMeshes = [];
+
   var scene = new THREE.Scene();
   scene.fog = new THREE.Fog( 0x000000, 0, 1000 );
   var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 1000 );
@@ -76,8 +79,8 @@ if(window.location.pathname=='/view') {
   camera.position.set(-12,4,0);
 
   // physics
-  var world = CANNON.World();
-  world.gravity.set(0, 0, -9.82);
+  var world = new CANNON.World();
+  world.gravity.set(0, 0, 0);
   world.broadphase = new CANNON.NaiveBroadphase();
 
   var renderer = new THREE.WebGLRenderer();
@@ -101,8 +104,13 @@ if(window.location.pathname=='/view') {
   scene.add(plane);
 
   // physics
-  var groundPlane = new CANNON.Plane();
-  var groundBody = new CANNON.RigidBody(0, groundPlane);
+  var groundShape = new CANNON.Plane();
+  var groundBody = new CANNON.Body({
+    mass: 0,
+    position: new CANNON.Vec3(0, 0, -0.1)
+  });
+  groundBody.addShape(groundShape);
+  groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), -Math.PI / 2);
   world.add(groundBody);
 
   // OBJECTS
@@ -118,17 +126,21 @@ if(window.location.pathname=='/view') {
       geometry = new THREE.BoxGeometry( 1, 0.2, 1 );
       geometry.applyMatrix( new THREE.Matrix4().makeTranslation(i*2, j*0.2, i*2));
       material = new THREE.MeshLambertMaterial({ color: 'white' });
+      // geometry.position.set( i*posRnd, j*0.2, i*posRnd );
       var cube = new THREE.Mesh( geometry, material );
       cube.castShadow = true;
       cube.receiveShadow = true;
       scene.add( cube );
+      buildingMeshes.push(cube);
 
       var halfExtents = new CANNON.Vec3( 1, 0.2, 1 );
       var boxShape = new CANNON.Box(halfExtents);
       var boxBody = new CANNON.Body({mass: 5});
       boxBody.addShape(boxShape);
+      boxBody.position.set( i*posRnd, j*0.2, i*posRnd );
 
       world.add(boxBody);
+      buildingBodys.push(boxBody);
 
     }
   }
@@ -146,8 +158,16 @@ if(window.location.pathname=='/view') {
   // light.shadowCameraVisible = true;
   scene.add(directionalLight);
 
+  var dt = 1/60;
   var render = function () {
     requestAnimationFrame( render );
+
+    world.step(dt);
+    for (var i=0; i<buildingBodys.length; i++) {
+      buildingMeshes[i].position.copy(buildingBodys[i].position);
+      buildingMeshes[i].quaternion.copy(buildingBodys[i].quaternion);
+    }
+
     renderer.render(scene, camera);
   };
 
