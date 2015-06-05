@@ -203,34 +203,34 @@ if(window.location.pathname=='/view') {
   //   console.log(buildingBodys[i].position);
   // }
 
-  // socket.on('deviceorientation', function(data) {
-  //   var alpha  = data.gamma ? THREE.Math.degToRad( data.alpha ) : 0; // Z
-	// 	var beta   = data.beta  ? THREE.Math.degToRad( data.beta  ) : 0; // X'
-	// 	var gamma  = data.gamma ? THREE.Math.degToRad( data.gamma ) : 0; // Y''
-  //
-  //   var q = createQuaternion(alpha, beta, gamma, THREE.Math.degToRad(90));
-  //
-  //   // var rotEuler = new THREE.Euler( 0, THREE.Math.degToRad(90), 0, 'XYZ' );
-  //   // var rotQuat = new THREE.Quaternion();
-  //   // rotQuat.setFromEuler(rotEuler);
-  //   // q.multiply(rotQuat);
-  //
-  //   // if(controlType == 'object') {
-  //     // cube.quaternion.copy(q);
-  //   // } else {
-  //     // q.inverse();
-  //     var qm = new THREE.Quaternion();
-  //     THREE.Quaternion.slerp(camera.quaternion, q, qm, 0.2);
-  //     camera.quaternion.copy(qm);
-  //   // }
-  // });
-  //
-  // socket.on('btnFwd', function(data) {
-  //   camera.translateZ( - 0.2 );
-  // });
-  // socket.on('btnBck', function(data) {
-  //   camera.translateZ( 0.2 );
-  // })
+  socket.on('deviceorientation', function(data) {
+    var alpha  = data.gamma ? THREE.Math.degToRad( data.alpha ) : 0; // Z
+		var beta   = data.beta  ? THREE.Math.degToRad( data.beta  ) : 0; // X'
+		var gamma  = data.gamma ? THREE.Math.degToRad( data.gamma ) : 0; // Y''
+
+    var q = createQuaternion(alpha, beta, gamma, THREE.Math.degToRad(90));
+
+    // var rotEuler = new THREE.Euler( 0, THREE.Math.degToRad(90), 0, 'XYZ' );
+    // var rotQuat = new THREE.Quaternion();
+    // rotQuat.setFromEuler(rotEuler);
+    // q.multiply(rotQuat);
+
+    // if(controlType == 'object') {
+      // cube.quaternion.copy(q);
+    // } else {
+      // q.inverse();
+      var qm = new THREE.Quaternion();
+      THREE.Quaternion.slerp(camera.quaternion, q, qm, 0.2);
+      camera.quaternion.copy(qm);
+    // }
+  });
+
+  socket.on('btnFwd', function(data) {
+    camera.translateZ( - 0.2 );
+  });
+  socket.on('btnBck', function(data) {
+    camera.translateZ( 0.2 );
+  })
 
   // var box = document.getElementById('box');
   // socket.on('deviceorientation', function(data) {
