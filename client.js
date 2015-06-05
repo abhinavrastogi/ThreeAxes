@@ -71,29 +71,29 @@ if(window.location.pathname=='/view') {
 
   // collections
   var buildingBodys = [], buildingMeshes = [];
-  var controls;
+  // var controls;
 
   var scene = new THREE.Scene();
-  scene.fog = new THREE.Fog( 0x000000, 0, 1000 );
+  scene.fog = new THREE.FogExp2( 0x000000, 0.003 );
   var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 1000 );
   // camera.position.z = 500;
-  camera.position.set(-50,10,0);
+  camera.position.set(-10,10,0);
 
   //controls
-  controls = new THREE.TrackballControls( camera );
-  controls.rotateSpeed = 1.0;
-  controls.zoomSpeed = 1.2;
-	controls.panSpeed = 0.8;
-
-	controls.noZoom = false;
-	controls.noPan = false;
-
-	controls.staticMoving = true;
-	controls.dynamicDampingFactor = 0.3;
-
-	controls.keys = [ 65, 83, 68 ];
-
-	controls.addEventListener( 'change', render );
+  // controls = new THREE.TrackballControls( camera );
+  // controls.rotateSpeed = 1.0;
+  // controls.zoomSpeed = 1.2;
+	// controls.panSpeed = 0.8;
+  //
+	// controls.noZoom = false;
+	// controls.noPan = false;
+  //
+	// controls.staticMoving = true;
+	// controls.dynamicDampingFactor = 0.3;
+  //
+	// controls.keys = [ 65, 83, 68 ];
+  //
+	// controls.addEventListener( 'change', render );
 
   // physics
   var world = new CANNON.World();
@@ -110,11 +110,15 @@ if(window.location.pathname=='/view') {
   // FLOOR
   var geometry = new THREE.PlaneBufferGeometry( 30, 30, 1, 1 );
   geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, -1));
+  var texture = THREE.ImageUtils.loadTexture( "/grass.jpg" );
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set( 10, 10 );
   geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ));
   var material = new THREE.MeshLambertMaterial({
     color: 0x666666,
     // wireframe: true,
-    map: THREE.ImageUtils.loadTexture('/grass.jpg')
+    map: texture
   });
   var plane = new THREE.Mesh( geometry, material );
   plane.receiveShadow = true;
@@ -137,12 +141,17 @@ if(window.location.pathname=='/view') {
   // var cube = new THREE.Mesh( geometry, material );
   // scene.add( cube );
 
+  texture = THREE.ImageUtils.loadTexture( "/building.png" );
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set( 2, 2 );
+
   for(var i=0; i<3; i++) {
     // var floors = Math.floor(Math.random() * 10) + 2;
 
     var boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
     // boxGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 1, 0));
-    var boxMaterial = new THREE.MeshLambertMaterial({ color: 'white' });
+    var boxMaterial = new THREE.MeshLambertMaterial({ color: 'white', map: texture });
     var cube = new THREE.Mesh( boxGeometry, boxMaterial );
     cube.castShadow = true;
     cube.receiveShadow = true;
@@ -168,11 +177,9 @@ if(window.location.pathname=='/view') {
   scene.add( light );
 
   var directionalLight = new THREE.SpotLight(0xffffff);
-  directionalLight.position.set(15, 100, 15);
+  directionalLight.position.set(50, 50, 50);
   directionalLight.castShadow = true;
   directionalLight.shadowDarkness = 0.5;
-  directionalLight.shadowMapWidth = 1024;
-  directionalLight.shadowMapHeight = 1024;
   // light.shadowCameraVisible = true;
   scene.add(directionalLight);
 
@@ -185,7 +192,7 @@ if(window.location.pathname=='/view') {
   var animate = function () {
     requestAnimationFrame( animate );
 
-    controls.update();
+    // controls.update();
 
     world.step(dt);
     for (var i=0; i<buildingBodys.length; i++) {
