@@ -71,6 +71,7 @@ if(window.location.pathname=='/view') {
 
   // collections
   var buildingBodys = [], buildingMeshes = [];
+  var controls;
 
   var scene = new THREE.Scene();
   scene.fog = new THREE.Fog( 0x000000, 0, 1000 );
@@ -78,9 +79,25 @@ if(window.location.pathname=='/view') {
   // camera.position.z = 500;
   camera.position.set(-12,4,0);
 
+  //controls
+  controls = new THREE.TrackballControls( camera );
+  controls.rotateSpeed = 1.0;
+  controls.zoomSpeed = 1.2;
+	controls.panSpeed = 0.8;
+
+	controls.noZoom = false;
+	controls.noPan = false;
+
+	controls.staticMoving = true;
+	controls.dynamicDampingFactor = 0.3;
+
+	controls.keys = [ 65, 83, 68 ];
+
+	controls.addEventListener( 'change', render );
+
   // physics
   var world = new CANNON.World();
-  world.gravity.set(0, 0, 0);
+  world.gravity.set(0, -100, 0);
   world.broadphase = new CANNON.NaiveBroadphase();
 
   var renderer = new THREE.WebGLRenderer();
@@ -92,7 +109,7 @@ if(window.location.pathname=='/view') {
 
   // FLOOR
   var geometry = new THREE.PlaneBufferGeometry( 30, 30, 20, 20 );
-  geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, -0.1));
+  // geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, 0));
   geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ));
   var material = new THREE.MeshLambertMaterial({
     color: 0x666666,
@@ -107,10 +124,11 @@ if(window.location.pathname=='/view') {
   var groundShape = new CANNON.Plane();
   var groundBody = new CANNON.Body({
     mass: 0,
-    position: new CANNON.Vec3(0, 0, -0.1)
+    // position: new CANNON.Vec3(0, 0, 0)
   });
   groundBody.addShape(groundShape);
-  groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), -Math.PI / 2);
+  // groundBody.rotation.set();
+  groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
   world.add(groundBody);
 
   // OBJECTS
@@ -121,28 +139,25 @@ if(window.location.pathname=='/view') {
 
   for(var i=0; i<5; i++) {
     var floors = Math.floor(Math.random() * 10) + 2;
-    // var posRnd = Math.random()*3;
-    for(var j=0; j<floors; j++) {
-      geometry = new THREE.BoxGeometry( 1, 0.2, 1 );
-      geometry.applyMatrix( new THREE.Matrix4().makeTranslation(i*2, j*0.2, i*2));
-      material = new THREE.MeshLambertMaterial({ color: 'white' });
-      // geometry.position.set( i*posRnd, j*0.2, i*posRnd );
-      var cube = new THREE.Mesh( geometry, material );
-      cube.castShadow = true;
-      cube.receiveShadow = true;
-      scene.add( cube );
-      buildingMeshes.push(cube);
 
-      var halfExtents = new CANNON.Vec3( 1, 0.2, 1 );
-      var boxShape = new CANNON.Box(halfExtents);
-      var boxBody = new CANNON.Body({mass: 5});
-      boxBody.addShape(boxShape);
-      boxBody.position.set(i*2, j*0.2, i*2);
+    var boxGeometry = new THREE.BoxGeometry( 1, 0.2 * floors, 1 );
+    boxGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(i, 0, i));
+    var boxMaterial = new THREE.MeshLambertMaterial({ color: 'white' });
+    var cube = new THREE.Mesh( boxGeometry, boxMaterial );
+    cube.castShadow = true;
+    cube.receiveShadow = true;
 
-      world.add(boxBody);
-      buildingBodys.push(boxBody);
+    scene.add( cube );
+    buildingMeshes.push(cube);
 
-    }
+    var boxShape = new CANNON.Box(new CANNON.Vec3( 1, 0.2 * floors, 1 ));
+    var boxBody = new CANNON.Body({ mass: 50 });
+    boxBody.addShape(boxShape);
+    boxBody.position.set(i, 0, i);
+
+    world.add(boxBody);
+    buildingBodys.push(boxBody);
+
   }
 
   // LIGHT
@@ -159,8 +174,15 @@ if(window.location.pathname=='/view') {
   scene.add(directionalLight);
 
   var dt = 1/60;
-  var render = function () {
-    requestAnimationFrame( render );
+
+  function render() {
+    renderer.render( scene, camera );
+  }
+
+  var animate = function () {
+    requestAnimationFrame( animate );
+
+    controls.update();
 
     world.step(dt);
     for (var i=0; i<buildingBodys.length; i++) {
@@ -168,10 +190,10 @@ if(window.location.pathname=='/view') {
       buildingMeshes[i].quaternion.copy(buildingBodys[i].quaternion);
     }
 
-    renderer.render(scene, camera);
+    render();
   };
 
-  render();
+  animate();
 
   socket.on('deviceorientation', function(data) {
     var alpha  = data.gamma ? THREE.Math.degToRad( data.alpha ) : 0; // Z
