@@ -75,6 +75,11 @@ if(window.location.pathname=='/view') {
   // camera.position.z = 500;
   camera.position.set(-12,4,0);
 
+  // physics
+  var world = CANNON.World();
+  world.gravity.set(0, 0, -9.82);
+  world.broadphase = new CANNON.NaiveBroadphase();
+
   var renderer = new THREE.WebGLRenderer();
   renderer.setSize( window.innerWidth, window.innerHeight );
   renderer.shadowMapEnabled = true;
@@ -95,6 +100,11 @@ if(window.location.pathname=='/view') {
   plane.receiveShadow = true;
   scene.add(plane);
 
+  // physics
+  var groundPlane = new CANNON.Plane();
+  var groundBody = new CANNON.RigidBody(0, groundPlane);
+  world.add(groundBody);
+
   // OBJECTS
   // geometry = new THREE.BoxGeometry( 2, 1, 0.2 );
   // material = new THREE.MeshLambertMaterial({ color: 'gray' });
@@ -112,6 +122,14 @@ if(window.location.pathname=='/view') {
       cube.castShadow = true;
       cube.receiveShadow = true;
       scene.add( cube );
+
+      var halfExtents = new CANNON.Vec3( 1, 0.2, 1 );
+      var boxShape = new CANNON.Box(halfExtents);
+      var boxBody = new CANNON.Body({mass: 5});
+      boxBody.addShape(boxShape);
+
+      world.add(boxBody);
+
     }
   }
 
