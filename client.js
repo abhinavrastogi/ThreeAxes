@@ -206,7 +206,7 @@ if(window.location.pathname=='/view') {
     buildingMeshes.push(cube);
 
     var boxShape = new CANNON.Box(new CANNON.Vec3( boxWidth/2, boxHeight/2, boxDepth/2 ));
-    var boxBody = new CANNON.Body({ mass: 15 });
+    var boxBody = new CANNON.Body({ mass: 50 });
     boxBody.addShape(boxShape);
     boxBody.position.set(posx, posy, posz);
 
@@ -405,7 +405,7 @@ if(window.location.pathname=='/view') {
     var posy = Math.random() + 10;
     var posz = Math.random() * 30 - 15;
     // console.log('adding', posx, posy, posz);
-    if(Math.random() > 0.5)
+    if(Math.random() > 0.75)
       addBox(posx, posy, posz);
     else
       addSmallBox(posx, posy, posz);
