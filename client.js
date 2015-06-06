@@ -3,6 +3,8 @@ var socket = io();
 if(window.location.pathname=='/') {
   var btnFwd = document.getElementById('fwd');
   var btnBck = document.getElementById('bck');
+  var carFwd = document.getElementById('carFwd');
+  var carBck = document.getElementById('carBck');
 
   window.addEventListener('deviceorientation', function(event) {
     socket.emit('deviceorientation', {
@@ -12,7 +14,7 @@ if(window.location.pathname=='/') {
     });
   });
 
-  var fwdPressed, bckPressed;
+  var fwdPressed, bckPressed, carFwdPressed, carBckPressed;
 
   btnFwd.addEventListener('touchstart', function(ev) {
     ev.preventDefault();
@@ -42,6 +44,7 @@ if(window.location.pathname=='/') {
 
 if(window.location.pathname=='/view') {
   var controlType = 'object';
+  var carPos = {x: 5, y: 0, z: 0};
 
   document.getElementById('moveobj').addEventListener('click', function(ev) {
     controlType = 'object'
@@ -136,10 +139,11 @@ if(window.location.pathname=='/view') {
   world.add(groundBody);
 
   // OBJECTS
-  // geometry = new THREE.BoxGeometry( 2, 1, 0.2 );
-  // material = new THREE.MeshLambertMaterial({ color: 'gray' });
-  // var cube = new THREE.Mesh( geometry, material );
-  // scene.add( cube );
+  var cargeometry = new THREE.BoxGeometry( 1, 0.2, 2 );
+  // cargeometry.applyMatrix( new THREE.Matrix4().makeTranslation(carPos.x, carPos.y, carPos.z));
+  material = new THREE.MeshLambertMaterial({ color: 'gray' });
+  var car = new THREE.Mesh( cargeometry, material );
+  scene.add( car );
 
   texture = THREE.ImageUtils.loadTexture( "/building.png" );
   texture.wrapS = THREE.RepeatWrapping;
@@ -189,6 +193,7 @@ if(window.location.pathname=='/view') {
     renderer.render( scene, camera );
   }
 
+  var t=0;
   var animate = function () {
     requestAnimationFrame( animate );
 
@@ -199,6 +204,11 @@ if(window.location.pathname=='/view') {
       buildingMeshes[i].position.copy(buildingBodys[i].position);
       buildingMeshes[i].quaternion.copy(buildingBodys[i].quaternion);
     }
+    // console.log(carPos);
+    t += 0.01;
+
+    car.rotation.y -= 0.01;
+    car.position.set(12 * Math.cos(t), 0, 12 * Math.sin(t));
 
     render();
   };
@@ -237,7 +247,7 @@ if(window.location.pathname=='/view') {
   });
   socket.on('btnBck', function(data) {
     camera.translateZ( 0.2 );
-  })
+  });
 
   // var box = document.getElementById('box');
   // socket.on('deviceorientation', function(data) {
