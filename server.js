@@ -34,7 +34,7 @@ io.on('connection', function(socket){
 		socket.broadcast.emit('btnBck', data);
 	});
 	socket.on('shoot', function(data) {
-		console.log(data);
+		// console.log(data);
 		socket.broadcast.emit('shoot', data);
 	});
 	// socket.on('devicemotion', function(data) {
