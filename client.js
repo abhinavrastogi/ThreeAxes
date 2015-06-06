@@ -128,10 +128,11 @@ if(window.location.pathname=='/view') {
   renderer.shadowMapEnabled = true;
   renderer.shadowMapSoft = true;
   renderer.setClearColor( scene.fog.color, 1 );
+  renderer.shadowMapType = THREE.PCFSoftShadowMap;
   document.body.appendChild( renderer.domElement );
 
   // FLOOR
-  var geometry = new THREE.PlaneGeometry( 50, 50, 1, 1 );
+  var geometry = new THREE.PlaneGeometry( 70, 70, 70, 70 );
   geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, -1));
   var texture = THREE.ImageUtils.loadTexture( "/grass.jpg" );
   texture.wrapS = THREE.RepeatWrapping;
@@ -224,9 +225,14 @@ if(window.location.pathname=='/view') {
   scene.add( light );
 
   var directionalLight = new THREE.SpotLight(0xffffff);
-  directionalLight.position.set(-100, 1000, 100);
+  directionalLight.position.set(-100, 700, 100);
   directionalLight.castShadow = true;
-  directionalLight.shadowDarkness = 0.5;
+  directionalLight.shadowDarkness = 0.4;
+  directionalLight.shadowCameraNear = 10;
+  directionalLight.shadowCameraFar = 1000;
+  directionalLight.shadowCameraFov = 20;
+  directionalLight.shadowMapWidth = 1024; // default is 512
+  directionalLight.shadowMapHeight = 1024; // default is 512
   // light.shadowCameraVisible = true;
   scene.add(directionalLight);
 
