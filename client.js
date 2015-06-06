@@ -5,7 +5,7 @@ if(window.location.pathname=='/') {
   var btnBck = document.getElementById('bck');
   var carFwd = document.getElementById('carFwd');
   var carBck = document.getElementById('carBck');
-  var addBtn = document.getElementById('add');
+  var addBtn = document.getElementById('addBtn');
 
   window.addEventListener('deviceorientation', function(event) {
     socket.emit('deviceorientation', {
@@ -15,7 +15,7 @@ if(window.location.pathname=='/') {
     });
   });
 
-  var fwdPressed, bckPressed, shootPressed, addPressed;
+  var fwdPressed, bckPressed, shootPressed;
 
   btnFwd.addEventListener('touchstart', function(ev) {
     ev.preventDefault();
@@ -50,15 +50,8 @@ if(window.location.pathname=='/') {
     clearInterval(shootPressed);
   });
 
-  addBtn.addEventListener('touchstart', function(ev) {
-    ev.preventDefault();
-    addPressed = setInterval(function() {
-      socket.emit('addBtn', {});
-    }, 500);
-  });
-  addbtn.addEventListener('touchend', function(ev) {
-    ev.preventDefault();
-    clearInterval(addPressed);
+  addBtn.addEventListener('click', function(ev) {
+    socket.emit('addBtn', {});
   });
 }
 //   window.addEventListener('devicemotion', function(event) {
@@ -378,10 +371,10 @@ if(window.location.pathname=='/view') {
   });
 
   socket.on('addBtn', function() {
-    var posx = Math.random() * 30;
-    var posy = Math.random() * 20 + 10;
-    var posz = Math.random() * 30;
-    console.log('adding', posx, posy, posz);
+    var posx = Math.random() * 30 - 15;
+    var posy = Math.random() * 5 + 10;
+    var posz = Math.random() * 30 - 15;
+    // console.log('adding', posx, posy, posz);
     addBox(posx, posy, posz);
   });
 
