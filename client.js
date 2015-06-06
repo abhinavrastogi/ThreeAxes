@@ -111,7 +111,7 @@ if(window.location.pathname=='/view') {
   document.body.appendChild( renderer.domElement );
 
   // FLOOR
-  var geometry = new THREE.PlaneBufferGeometry( 30, 30, 1, 1 );
+  var geometry = new THREE.PlaneBufferGeometry( 300, 300, 1, 1 );
   geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, -1));
   var texture = THREE.ImageUtils.loadTexture( "/grass.jpg" );
   texture.wrapS = THREE.RepeatWrapping;
@@ -181,7 +181,7 @@ if(window.location.pathname=='/view') {
   scene.add( light );
 
   var directionalLight = new THREE.SpotLight(0xffffff);
-  directionalLight.position.set(50, 50, 50);
+  directionalLight.position.set(100, 1000, 100);
   directionalLight.castShadow = true;
   directionalLight.shadowDarkness = 0.5;
   // light.shadowCameraVisible = true;
