@@ -73,8 +73,8 @@ if(window.location.pathname=='/view') {
   }();
 
   // collections
-  var buildingBodys = [], buildingMeshes = [];
-  // var controls;
+  var buildingBodys = [], buildingMeshes = [], bulletMeshes = [], bulletBodys = [];
+  var controls;
 
   var scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2( 0x000000, 0.003 );
@@ -83,24 +83,24 @@ if(window.location.pathname=='/view') {
   camera.position.set(-10,10,0);
 
   //controls
-  // controls = new THREE.TrackballControls( camera );
-  // controls.rotateSpeed = 1.0;
-  // controls.zoomSpeed = 1.2;
-	// controls.panSpeed = 0.8;
-  //
-	// controls.noZoom = false;
-	// controls.noPan = false;
-  //
-	// controls.staticMoving = true;
-	// controls.dynamicDampingFactor = 0.3;
-  //
-	// controls.keys = [ 65, 83, 68 ];
-  //
-	// controls.addEventListener( 'change', render );
+  controls = new THREE.TrackballControls( camera );
+  controls.rotateSpeed = 1.0;
+  controls.zoomSpeed = 1.2;
+	controls.panSpeed = 0.8;
+
+	controls.noZoom = false;
+	controls.noPan = false;
+
+	controls.staticMoving = true;
+	controls.dynamicDampingFactor = 0.3;
+
+	controls.keys = [ 65, 83, 68 ];
+
+	controls.addEventListener( 'change', render );
 
   // physics
   var world = new CANNON.World();
-  world.gravity.set(0, -100, 0);
+  world.gravity.set(0, -10, 0);
   world.broadphase = new CANNON.NaiveBroadphase();
 
   var renderer = new THREE.WebGLRenderer();
@@ -111,7 +111,7 @@ if(window.location.pathname=='/view') {
   document.body.appendChild( renderer.domElement );
 
   // FLOOR
-  var geometry = new THREE.PlaneBufferGeometry( 300, 300, 1, 1 );
+  var geometry = new THREE.PlaneGeometry( 300, 300, 1, 1 );
   geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, -1));
   var texture = THREE.ImageUtils.loadTexture( "/grass.jpg" );
   texture.wrapS = THREE.RepeatWrapping;
@@ -197,7 +197,7 @@ if(window.location.pathname=='/view') {
   var animate = function () {
     requestAnimationFrame( animate );
 
-    // controls.update();
+    controls.update();
 
     world.step(dt);
     for (var i=0; i<buildingBodys.length; i++) {
@@ -209,6 +209,11 @@ if(window.location.pathname=='/view') {
 
     car.rotation.y -= 0.01;
     car.position.set(12 * Math.cos(t), 0, 12 * Math.sin(t));
+
+    for (var i=0; i<bulletBodys.length; i++) {
+      bulletMeshes[i].position.copy(bulletBodys[i].position);
+      bulletMeshes[i].quaternion.copy(bulletBodys[i].quaternion);
+    }
 
     render();
   };
@@ -247,6 +252,56 @@ if(window.location.pathname=='/view') {
   });
   socket.on('btnBck', function(data) {
     camera.translateZ( 0.2 );
+  });
+
+  var bulletShape = new CANNON.Sphere(0.2);
+  var bulletGeometry = new THREE.SphereGeometry(bulletShape.radius, 32, 32);
+  var shootDirection = new THREE.Vector3();
+  var shootVelo = 15;
+  var projector = new THREE.Projector();
+
+  function getShootDir(targetVec){
+    var vector = targetVec;
+    targetVec.set(0,0,1);
+    projector.unprojectVector(vector, camera);
+    var ray = new THREE.Ray(camera.position, vector.sub(camera.position).normalize() );
+    targetVec.copy(ray.direction);
+  }
+
+  socket.on('shoot', function() {
+    var x = camera.position.x + 3;
+    var y = camera.position.y;
+    var z = camera.position.z;
+
+    var bulletBody = new CANNON.Body({ mass: 1 });
+    bulletBody.addShape(bulletShape);
+
+    var bulletMaterial = new THREE.MeshPhongMaterial({
+      color: 0xdddddd,
+      specular: 0x009900,
+      shininess: 30,
+      shading: THREE.FlatShading
+    });
+    var bulletMesh = new THREE.Mesh( bulletGeometry, bulletMaterial );
+    world.add(bulletBody);
+    scene.add(bulletMesh);
+    bulletMesh.castShadow = true;
+    bulletMesh.receiveShadow = true;
+
+    bulletBodys.push(bulletBody);
+    bulletMeshes.push(bulletMesh);
+    getShootDir(shootDirection);
+    bulletBody.velocity.set( shootDirection.x * shootVelo,
+      shootDirection.y * shootVelo,
+      shootDirection.z * shootVelo);
+
+    // Move the bullet outside the player sphere
+    x += shootDirection.x * (bulletShape.radius*1.02 + bulletShape.radius);
+    y += shootDirection.y * (bulletShape.radius*1.02 + bulletShape.radius);
+    z += shootDirection.z * (bulletShape.radius*1.02 + bulletShape.radius);
+    bulletBody.position.set(x,y,z);
+    bulletMesh.position.set(x,y,z);
+
   });
 
   // var box = document.getElementById('box');
