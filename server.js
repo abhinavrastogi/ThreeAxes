@@ -36,10 +36,10 @@ io.on('connection', function(socket){
 	// socket.on('devicemotion', function(data) {
 	// 	socket.broadcast.emit('devicemotion', data);
 	// });
-	setInterval(function() {
-		console.log('shooting');
-		socket.broadcast.emit('shoot', {});
-	}, 5000);
+	// setInterval(function() {
+	// 	console.log('shooting');
+	// 	socket.broadcast.emit('shoot', {});
+	// }, 5000);
 });
 
 http.listen(3000, function(err) {

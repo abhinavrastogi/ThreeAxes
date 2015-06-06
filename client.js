@@ -43,6 +43,8 @@ if(window.location.pathname=='/') {
 // };
 
 if(window.location.pathname=='/view') {
+  var loader = new THREE.ObjectLoader();
+
   var controlType = 'object';
   var carPos = {x: 5, y: 0, z: 0};
 
@@ -139,6 +141,15 @@ if(window.location.pathname=='/view') {
   world.add(groundBody);
 
   // OBJECTS
+
+  loader.load('/porsche-cayman.scene/porsche-cayman.json', function (object) {
+    // console.log(object);
+    // object.scale.set(1, 1, 1);
+    // object.position.set(1,1,1);
+    // console.log(object.scale);
+    scene.add(object);
+  });
+
   var cargeometry = new THREE.BoxGeometry( 1, 0.2, 2 );
   // cargeometry.applyMatrix( new THREE.Matrix4().makeTranslation(carPos.x, carPos.y, carPos.z));
   material = new THREE.MeshLambertMaterial({ color: 'gray' });
