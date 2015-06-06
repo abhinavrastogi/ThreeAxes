@@ -41,6 +41,7 @@ if(window.location.pathname=='/') {
 
   shootBtn.addEventListener('touchstart', function(ev) {
     ev.preventDefault();
+    socket.emit('shoot', {});
     shootPressed = setInterval(function() {
       socket.emit('shoot', {});
     }, 200);
@@ -372,7 +373,7 @@ if(window.location.pathname=='/view') {
 
   socket.on('addBtn', function() {
     var posx = Math.random() * 30 - 15;
-    var posy = Math.random() * 5 + 10;
+    var posy = Math.random() + 10;
     var posz = Math.random() * 30 - 15;
     // console.log('adding', posx, posy, posz);
     addBox(posx, posy, posz);
