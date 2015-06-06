@@ -14,7 +14,7 @@ if(window.location.pathname=='/') {
     });
   });
 
-  var fwdPressed, bckPressed, carFwdPressed, carBckPressed;
+  var fwdPressed, bckPressed, shootPressed;
 
   btnFwd.addEventListener('touchstart', function(ev) {
     ev.preventDefault();
@@ -36,6 +36,16 @@ if(window.location.pathname=='/') {
     ev.preventDefault();
     clearInterval(bckPressed);
   });
+  shootBtn.addEventListener('touchstart', function(ev) {
+    ev.preventDefault();
+    shootPressed = setInterval(function() {
+      socket.emit('shoot', {});
+    }, 200);
+  });
+  shootBtn.addEventListener('touchend', function(ev) {
+    ev.preventDefault();
+    clearInterval(shootPressed);
+  });
 }
 //   window.addEventListener('devicemotion', function(event) {
 //     socket.emit('devicemotion', event.accelerationIncludingGravity);
@@ -43,7 +53,7 @@ if(window.location.pathname=='/') {
 // };
 
 if(window.location.pathname=='/view') {
-  var loader = new THREE.ObjectLoader();
+
 
   var controlType = 'object';
   var carPos = {x: 5, y: 0, z: 0};
@@ -79,26 +89,26 @@ if(window.location.pathname=='/view') {
   var controls;
 
   var scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2( 0x000000, 0.003 );
+  scene.fog = new THREE.Fog( 0x000000, 0, 70 );
   var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 1000 );
   // camera.position.z = 500;
-  camera.position.set(-10,10,0);
+  camera.position.set(-20,10,0);
 
   //controls
-  controls = new THREE.TrackballControls( camera );
-  controls.rotateSpeed = 1.0;
-  controls.zoomSpeed = 1.2;
-	controls.panSpeed = 0.8;
-
-	controls.noZoom = false;
-	controls.noPan = false;
-
-	controls.staticMoving = true;
-	controls.dynamicDampingFactor = 0.3;
-
-	controls.keys = [ 65, 83, 68 ];
-
-	controls.addEventListener( 'change', render );
+  // controls = new THREE.TrackballControls( camera );
+  // controls.rotateSpeed = 1.0;
+  // controls.zoomSpeed = 1.2;
+	// controls.panSpeed = 0.8;
+  //
+	// controls.noZoom = false;
+	// controls.noPan = false;
+  //
+	// controls.staticMoving = true;
+	// controls.dynamicDampingFactor = 0.3;
+  //
+	// controls.keys = [ 65, 83, 68 ];
+  //
+	// controls.addEventListener( 'change', render );
 
   // physics
   var world = new CANNON.World();
@@ -113,7 +123,7 @@ if(window.location.pathname=='/view') {
   document.body.appendChild( renderer.domElement );
 
   // FLOOR
-  var geometry = new THREE.PlaneGeometry( 300, 300, 1, 1 );
+  var geometry = new THREE.PlaneGeometry( 50, 50, 1, 1 );
   geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, -1));
   var texture = THREE.ImageUtils.loadTexture( "/grass.jpg" );
   texture.wrapS = THREE.RepeatWrapping;
@@ -129,6 +139,17 @@ if(window.location.pathname=='/view') {
   plane.receiveShadow = true;
   scene.add(plane);
 
+  // geometry = new THREE.TetrahedronGeometry(0.5);
+  // // geometry.applyMatrix( new THREE.Matrix4().makeRotationX( Math.PI / 2 ));
+  // // geometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 4, 0));
+  // geometry.
+  // var playerMaterial = new THREE.MeshLambertMaterial({color: 'white', wireframe: true});
+  // var player = new THREE.Mesh(geometry, playerMaterial);
+  // // player.castShadow = true;
+  // // player.receiveShadow = true;
+  // player.rotation.set(0,1,0,1);
+  // scene.add(player);
+
   // physics
   var groundShape = new CANNON.Plane();
   var groundBody = new CANNON.Body({
@@ -141,32 +162,32 @@ if(window.location.pathname=='/view') {
   world.add(groundBody);
 
   // OBJECTS
+  // window.xwing={};
 
-  loader.load('/porsche-cayman.scene/porsche-cayman.json', function (object) {
-    // console.log(object);
-    // object.scale.set(1, 1, 1);
-    // object.position.set(1,1,1);
-    // console.log(object.scale);
-    scene.add(object);
-  });
+  // var cargeometry = new THREE.BoxGeometry( 1, 0.2, 2 );
+  // // cargeometry.applyMatrix( new THREE.Matrix4().makeTranslation(carPos.x, carPos.y, carPos.z));
+  // material = new THREE.MeshLambertMaterial({ color: 'gray' });
+  // var car = new THREE.Mesh( cargeometry, material );
+  // scene.add( car );
 
-  var cargeometry = new THREE.BoxGeometry( 1, 0.2, 2 );
-  // cargeometry.applyMatrix( new THREE.Matrix4().makeTranslation(carPos.x, carPos.y, carPos.z));
-  material = new THREE.MeshLambertMaterial({ color: 'gray' });
-  var car = new THREE.Mesh( cargeometry, material );
-  scene.add( car );
+  var textures = [];
 
-  texture = THREE.ImageUtils.loadTexture( "/building.png" );
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set( 2, 2 );
+  for(var t=1; t<=6; t++) {
+    var texture = THREE.ImageUtils.loadTexture( "/containers/container"+t+".png" );
+    textures.push(texture);
+    // texture.wrapS = THREE.RepeatWrapping;
+    // texture.wrapT = THREE.RepeatWrapping;
+    // texture.repeat.set( 2, 2 );
+  }
 
-  for(var i=0; i<3; i++) {
+  for(var i=0; i<10; i++) {
     // var floors = Math.floor(Math.random() * 10) + 2;
+    var boxWidth = 3, boxHeight = 1, boxDepth = 1;
+    var rndTex = Math.floor(Math.random() * 5) + 1;
 
-    var boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+    var boxGeometry = new THREE.BoxGeometry( boxWidth, boxHeight, boxDepth );
     // boxGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 1, 0));
-    var boxMaterial = new THREE.MeshLambertMaterial({ color: 'white', map: texture });
+    var boxMaterial = new THREE.MeshLambertMaterial({ color: 'white', map: textures[rndTex] });
     var cube = new THREE.Mesh( boxGeometry, boxMaterial );
     cube.castShadow = true;
     cube.receiveShadow = true;
@@ -177,10 +198,10 @@ if(window.location.pathname=='/view') {
     // var bbox = new THREE.Box3().setFromObject(cube).size();
     // console.log(bbox.max, bbox.min, bbox.size());
 
-    var boxShape = new CANNON.Box(new CANNON.Vec3( 0.5, 0.5, 0.5 ));
+    var boxShape = new CANNON.Box(new CANNON.Vec3( boxWidth/2, boxHeight/2, boxDepth/2 ));
     var boxBody = new CANNON.Body({ mass: 5 });
     boxBody.addShape(boxShape);
-    boxBody.position.set(0, i, 0);
+    boxBody.position.set(0, i*boxHeight, 0);
 
     world.add(boxBody);
     buildingBodys.push(boxBody);
@@ -192,7 +213,7 @@ if(window.location.pathname=='/view') {
   scene.add( light );
 
   var directionalLight = new THREE.SpotLight(0xffffff);
-  directionalLight.position.set(100, 1000, 100);
+  directionalLight.position.set(-100, 1000, 100);
   directionalLight.castShadow = true;
   directionalLight.shadowDarkness = 0.5;
   // light.shadowCameraVisible = true;
@@ -205,10 +226,25 @@ if(window.location.pathname=='/view') {
   }
 
   var t=0;
+
+  // var loader = new THREE.OBJMTLLoader();
+  // loader.load('/mig/Mig-25_Foxbat.obj', '/mig/Mig-25_Foxbat.mtl', function (obj) {
+    // xwing = obj;
+    // obj.rotation.set(-1,-1,-1);
+    // xwing.position.applyQuaternion(new THREE.Quaternion(1, 0, 0, Math.PI / 2))
+
+
+	// 	obj.position.y = - 80;
+  //   scene.add(obj);
+  //   // console.log(xwing);
+  //   animate();
+  // });
+
+
   var animate = function () {
     requestAnimationFrame( animate );
 
-    controls.update();
+    // controls.update();
 
     world.step(dt);
     for (var i=0; i<buildingBodys.length; i++) {
@@ -218,17 +254,19 @@ if(window.location.pathname=='/view') {
     // console.log(carPos);
     t += 0.01;
 
-    car.rotation.y -= 0.01;
-    car.position.set(12 * Math.cos(t), 0, 12 * Math.sin(t));
+    // car.rotation.y -= 0.01;
+    // car.position.set(12 * Math.cos(t), 0, 12 * Math.sin(t));
 
     for (var i=0; i<bulletBodys.length; i++) {
       bulletMeshes[i].position.copy(bulletBodys[i].position);
       bulletMeshes[i].quaternion.copy(bulletBodys[i].quaternion);
     }
 
+    // xwing.position.copy(camera.position);
+    // xwing.quaternion.copy(camera.quaternion);
+
     render();
   };
-
   animate();
 
   // for(var i=0; i<buildingBodys.length; i++) {
@@ -265,10 +303,10 @@ if(window.location.pathname=='/view') {
     camera.translateZ( 0.2 );
   });
 
-  var bulletShape = new CANNON.Sphere(0.2);
+  var bulletShape = new CANNON.Sphere(0.1);
   var bulletGeometry = new THREE.SphereGeometry(bulletShape.radius, 32, 32);
   var shootDirection = new THREE.Vector3();
-  var shootVelo = 15;
+  var shootVelo = 20;
   var projector = new THREE.Projector();
 
   function getShootDir(targetVec){
@@ -284,7 +322,7 @@ if(window.location.pathname=='/view') {
     var y = camera.position.y;
     var z = camera.position.z;
 
-    var bulletBody = new CANNON.Body({ mass: 1 });
+    var bulletBody = new CANNON.Body({ mass: 3 });
     bulletBody.addShape(bulletShape);
 
     var bulletMaterial = new THREE.MeshPhongMaterial({
@@ -298,6 +336,11 @@ if(window.location.pathname=='/view') {
     scene.add(bulletMesh);
     bulletMesh.castShadow = true;
     bulletMesh.receiveShadow = true;
+
+    if(bulletBodys.length > 10) {
+      bulletBodys.splice(0,1);
+      bulletMeshes.splice(0,1);
+    }
 
     bulletBodys.push(bulletBody);
     bulletMeshes.push(bulletMesh);

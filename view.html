@@ -21,6 +21,18 @@
 			padding: 10px;
 			display: none;
 		}
+		#crosshair {
+			position: absolute;
+			margin-left: 50%;
+			height: 38px;
+			width: 38px;
+			top: 50%;
+			margin-top: -5px;
+			/* background: red; */
+			background: url(/cross.png);
+			background-size: cover;
+			border-radius: 50%;
+		}
 	</style>
 </head>
 <body>
@@ -31,6 +43,7 @@
 			<input type="radio" name="camorobj" id="moveobj" value='object' /><label for="modecam">Move Object</label>
 		</form>
 	</div>
+	<div id="crosshair"></div>
   <script src="/bundle.js"></script>
 </body>
 </html>

@@ -33,6 +33,10 @@ io.on('connection', function(socket){
 		// console.log(data);
 		socket.broadcast.emit('btnBck', data);
 	});
+	socket.on('shoot', function(data) {
+		console.log(data);
+		socket.broadcast.emit('shoot', data);
+	});
 	// socket.on('devicemotion', function(data) {
 	// 	socket.broadcast.emit('devicemotion', data);
 	// });
