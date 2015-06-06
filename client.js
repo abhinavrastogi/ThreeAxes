@@ -318,11 +318,11 @@ if(window.location.pathname=='/view') {
   }
 
   socket.on('shoot', function() {
-    var x = camera.position.x + 3;
+    var x = camera.position.x;
     var y = camera.position.y;
     var z = camera.position.z;
 
-    var bulletBody = new CANNON.Body({ mass: 3 });
+    var bulletBody = new CANNON.Body({ mass: 5 });
     bulletBody.addShape(bulletShape);
 
     var bulletMaterial = new THREE.MeshPhongMaterial({
@@ -337,7 +337,9 @@ if(window.location.pathname=='/view') {
     bulletMesh.castShadow = true;
     bulletMesh.receiveShadow = true;
 
-    if(bulletBodys.length > 10) {
+    if(bulletBodys.length > 25) {
+      world.remove(bulletBodys[0]);
+      scene.remove(bulletMeshes[0]);
       bulletBodys.splice(0,1);
       bulletMeshes.splice(0,1);
     }
