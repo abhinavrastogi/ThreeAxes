@@ -189,6 +189,8 @@ if(window.location.pathname=='/view') {
     // texture.repeat.set( 2, 2 );
   }
 
+  var woodTexture = THREE.ImageUtils.loadTexture('/wood.png');
+
   function addBox(posx, posy, posz) {
     var boxWidth = 3, boxHeight = 1, boxDepth = 1;
     var rndTex = Math.floor(Math.random() * 5) + 1;
@@ -203,8 +205,28 @@ if(window.location.pathname=='/view') {
     scene.add( cube );
     buildingMeshes.push(cube);
 
-    // var bbox = new THREE.Box3().setFromObject(cube).size();
-    // console.log(bbox.max, bbox.min, bbox.size());
+    var boxShape = new CANNON.Box(new CANNON.Vec3( boxWidth/2, boxHeight/2, boxDepth/2 ));
+    var boxBody = new CANNON.Body({ mass: 15 });
+    boxBody.addShape(boxShape);
+    boxBody.position.set(posx, posy, posz);
+
+    world.add(boxBody);
+    buildingBodys.push(boxBody);
+  }
+
+  function addSmallBox(posx, posy, posz) {
+    var boxWidth = 1, boxHeight = 1, boxDepth = 1;
+    var rndTex = Math.floor(Math.random() * 5) + 1;
+
+    var boxGeometry = new THREE.BoxGeometry( boxWidth, boxHeight, boxDepth );
+    // boxGeometry.applyMatrix( new THREE.Matrix4().makeTranslation(0, 1, 0));
+    var boxMaterial = new THREE.MeshLambertMaterial({ color: 'white', map: woodTexture });
+    var cube = new THREE.Mesh( boxGeometry, boxMaterial );
+    cube.castShadow = true;
+    cube.receiveShadow = true;
+
+    scene.add( cube );
+    buildingMeshes.push(cube);
 
     var boxShape = new CANNON.Box(new CANNON.Vec3( boxWidth/2, boxHeight/2, boxDepth/2 ));
     var boxBody = new CANNON.Body({ mass: 5 });
@@ -214,6 +236,7 @@ if(window.location.pathname=='/view') {
     world.add(boxBody);
     buildingBodys.push(boxBody);
   }
+
 
   for(var i=0; i<5; i++) {
     // var floors = Math.floor(Math.random() * 10) + 2;
@@ -382,7 +405,10 @@ if(window.location.pathname=='/view') {
     var posy = Math.random() + 10;
     var posz = Math.random() * 30 - 15;
     // console.log('adding', posx, posy, posz);
-    addBox(posx, posy, posz);
+    if(Math.random() > 0.5)
+      addBox(posx, posy, posz);
+    else
+      addSmallBox(posx, posy, posz);
   });
 
   window.addEventListener( 'resize', onWindowResize, false );
