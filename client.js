@@ -5,6 +5,7 @@ if(window.location.pathname=='/') {
   var btnBck = document.getElementById('bck');
   var carFwd = document.getElementById('carFwd');
   var carBck = document.getElementById('carBck');
+  var addBtn = document.getElementById('add');
 
   window.addEventListener('deviceorientation', function(event) {
     socket.emit('deviceorientation', {
@@ -14,7 +15,7 @@ if(window.location.pathname=='/') {
     });
   });
 
-  var fwdPressed, bckPressed, shootPressed;
+  var fwdPressed, bckPressed, shootPressed, addPressed;
 
   btnFwd.addEventListener('touchstart', function(ev) {
     ev.preventDefault();
@@ -26,6 +27,7 @@ if(window.location.pathname=='/') {
     ev.preventDefault();
     clearInterval(fwdPressed);
   });
+
   btnBck.addEventListener('touchstart', function(ev) {
     ev.preventDefault();
     bckPressed = setInterval(function() {
@@ -36,6 +38,7 @@ if(window.location.pathname=='/') {
     ev.preventDefault();
     clearInterval(bckPressed);
   });
+
   shootBtn.addEventListener('touchstart', function(ev) {
     ev.preventDefault();
     shootPressed = setInterval(function() {
@@ -45,6 +48,17 @@ if(window.location.pathname=='/') {
   shootBtn.addEventListener('touchend', function(ev) {
     ev.preventDefault();
     clearInterval(shootPressed);
+  });
+
+  addBtn.addEventListener('touchstart', function(ev) {
+    ev.preventDefault();
+    addPressed = setInterval(function() {
+      socket.emit('addBtn', {});
+    }, 500);
+  });
+  addbtn.addEventListener('touchend', function(ev) {
+    ev.preventDefault();
+    clearInterval(addPressed);
   });
 }
 //   window.addEventListener('devicemotion', function(event) {
@@ -180,8 +194,7 @@ if(window.location.pathname=='/view') {
     // texture.repeat.set( 2, 2 );
   }
 
-  for(var i=0; i<10; i++) {
-    // var floors = Math.floor(Math.random() * 10) + 2;
+  function addBox(posx, posy, posz) {
     var boxWidth = 3, boxHeight = 1, boxDepth = 1;
     var rndTex = Math.floor(Math.random() * 5) + 1;
 
@@ -201,11 +214,15 @@ if(window.location.pathname=='/view') {
     var boxShape = new CANNON.Box(new CANNON.Vec3( boxWidth/2, boxHeight/2, boxDepth/2 ));
     var boxBody = new CANNON.Body({ mass: 5 });
     boxBody.addShape(boxShape);
-    boxBody.position.set(0, i*boxHeight, 0);
+    boxBody.position.set(posx, posy, posz);
 
     world.add(boxBody);
     buildingBodys.push(boxBody);
+  }
 
+  for(var i=0; i<5; i++) {
+    // var floors = Math.floor(Math.random() * 10) + 2;
+    addBox(0, i, 0);
   }
 
   // LIGHT
@@ -306,7 +323,7 @@ if(window.location.pathname=='/view') {
   var bulletShape = new CANNON.Sphere(0.1);
   var bulletGeometry = new THREE.SphereGeometry(bulletShape.radius, 32, 32);
   var shootDirection = new THREE.Vector3();
-  var shootVelo = 20;
+  var shootVelo = 40;
   var projector = new THREE.Projector();
 
   function getShootDir(targetVec){
@@ -358,6 +375,14 @@ if(window.location.pathname=='/view') {
     bulletBody.position.set(x,y,z);
     bulletMesh.position.set(x,y,z);
 
+  });
+
+  socket.on('addBtn', function() {
+    var posx = Math.random() * 30;
+    var posy = Math.random() * 20 + 10;
+    var posz = Math.random() * 30;
+    console.log('adding', posx, posy, posz);
+    addBox(posx, posy, posz);
   });
 
   // var box = document.getElementById('box');

@@ -37,6 +37,10 @@ io.on('connection', function(socket){
 		// console.log(data);
 		socket.broadcast.emit('shoot', data);
 	});
+	socket.on('addBtn', function(data) {
+		console.log(data);
+		socket.broadcast.emit('add', data);
+	});
 	// socket.on('devicemotion', function(data) {
 	// 	socket.broadcast.emit('devicemotion', data);
 	// });
